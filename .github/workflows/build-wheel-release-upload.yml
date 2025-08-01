@@ -11,7 +11,7 @@ jobs:
     uses: Tieqiong/release-scripts/.github/workflows/_build-wheel-release-upload.yml@pypi
     with:
       project: diffpy.utils
-      c_extension: true
+      c_extension: false
       maintainer_GITHUB_username: Tieqiong
     secrets:
       PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
