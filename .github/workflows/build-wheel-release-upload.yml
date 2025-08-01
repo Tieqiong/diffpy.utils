@@ -8,11 +8,12 @@ on:
 
 jobs:
   release:
-    uses: scikit-package/release-scripts/.github/workflows/_build-wheel-release-upload.yml@v0
+    uses: Tieqiong/release-scripts/.github/workflows/_build-wheel-release-upload.yml@pypi
     with:
       project: diffpy.utils
-      c_extension: false
-      maintainer_GITHUB_username: sbillinge
+      c_extension: true
+      maintainer_GITHUB_username: Tieqiong
     secrets:
       PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+ 
