@@ -1,0 +1,257 @@
+name: Build Wheels
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "*"
+
+env:
+  PYTHON_VERSIONS: '["3.11","3.12","3.13"]'
+
+
+permissions:
+  contents: read
+  actions: read
+  packages: write
+
+concurrency:
+  group: build-wheels-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  py_ver:
+    runs-on: ubuntu-latest
+    outputs:
+      py_ver: ${{ steps.set.outputs.py_ver }}
+      py_last: ${{ steps.set.outputs.py_last }}
+    steps:
+      - id: set
+        run: |
+          echo py_ver=$PYTHON_VERSIONS >> $GITHUB_OUTPUT
+          echo "py_last=${{ fromJson(env.PYTHON_VERSIONS)[0] }}" >> $GITHUB_OUTPUT
+
+  check-tag-privilege:
+    # No third party actions used
+    uses: scikit-package/release-scripts/.github/workflows/_check-tag-privilege.yml@v0
+    with:
+      maintainer_github_username: Tieqiong
+
+  build-sdist:
+    needs: [check-tag-privilege, py_ver]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - name: Checkout
+        # GitHub officially-maintained actions
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        # GitHub officially-maintained actions
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ needs.py_ver.outputs.py_last }}
+
+    #   - name: Make sdist
+    #     run: |
+    #       python -m pip install --upgrade pip build cython setuptools setuptools-git-versioning
+    #       python -m build --sdist --no-isolation
+
+    #   - name: Strip source codes
+    #     run: |
+    #       set -euo pipefail
+    #       tar xf dist/diffpy_pdfgetx-*.tar.gz
+    #       SRC_DIR=$(find . -maxdepth 1 -type d -name 'diffpy_pdfgetx-*' | head -n1)
+    #       find "$SRC_DIR" -type f -name '*.c' -print0 \
+    #       | xargs -0 perl -i.bak -0777 -pe 's{/\*.*?\*/}{}gs'
+    #       find "$SRC_DIR" -type f -name '*.c.bak' -delete
+    #       tar czf dist/"${SRC_DIR#./}".tar.gz "$SRC_DIR"
+    #       rm -rf "$SRC_DIR"
+
+    #   - name: Upload sdist
+    #     # GitHub officially-maintained actions
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: sdist
+    #       path: dist/
+    #       retention-days: 1
+
+  build-wheels:
+    needs: [py_ver, build-sdist]
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    name: Build wheels ${{ matrix.python }}-${{ matrix.buildplat }}
+    runs-on: ${{ matrix.buildplat }}
+    strategy:
+      fail-fast: false
+      matrix:
+        buildplat:
+          - ubuntu-latest
+          - macos-13
+          - macos-14
+          - windows-latest
+        python: ${{ fromJSON(needs.py_ver.outputs.py_ver) }}
+    steps:
+    #   - name: Download sdist
+    #     # GitHub officially-maintained actions
+    #     uses: actions/download-artifact@v4
+    #     with:
+    #       name: sdist
+    #       path: dist/
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+    #   - name: Build wheels
+    #     run: |
+    #       # setuptools-git-versioning only look into .git and PKG-INFO in the top directory
+    #       python -m pip install --upgrade pip build cython setuptools setuptools-git-versioning
+    #       tar xf dist/diffpy_pdfgetx-*.tar.gz
+    #       cd diffpy_pdfgetx-*
+    #       python -m pip wheel . --no-deps --no-build-isolation --wheel-dir ./../dist
+
+      - name: make fake wheel
+        run: |
+          mkdir -p dist
+          touch dist/diffpy_pdfgetx-0.0.0-${{ matrix.python }}-${{ matrix.buildplat }}.whl
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.python }}-${{ matrix.buildplat }}
+          path: dist/*.whl
+
+  test-wheels:
+    needs: [py_ver, build-wheels]
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    name: Test wheels ${{ matrix.python }}-${{ matrix.buildplat }}
+    runs-on: ${{ matrix.buildplat }}
+    strategy:
+      fail-fast: false
+      matrix:
+        buildplat:
+          - ubuntu-latest
+          - macos-13
+          - macos-14
+          - windows-latest
+        python: ${{ fromJson(needs.py_ver.outputs.py_ver) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+    #   - name: Download wheels
+    #     uses: actions/download-artifact@v4
+    #     with:
+    #       name: wheels-${{ matrix.python }}-${{ matrix.buildplat }}
+    #       path: dist/
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+    #   - name: Install wheels
+    #     run: |
+    #       python -m pip install --upgrade pip pytest setuptools-git-versioning
+    #       python -m pip install dist/*.whl
+      
+    #   - name: Assert no source files in installed package
+    #     run: |
+    #       # For debugging
+    #       # touch $(python -c "import sysconfig, os; print(os.path.join(sysconfig.get_paths()['purelib'], 'diffpy/pdfgetx', 'fake.py'))")
+    #       python - << 'EOF'
+    #       import os, glob, sys, sysconfig
+    #       sp = sysconfig.get_paths()['purelib']
+    #       pkg = os.path.join(sp, 'diffpy', 'pdfgetx')
+    #       patterns = [os.path.join(pkg, '*.py'),
+    #                   os.path.join(pkg, '*.c')]
+    #       bad = []
+    #       for p in patterns:
+    #           bad.extend(glob.glob(p))
+
+    #       if bad:
+    #           print("Found leftover source files in installed package:")
+    #           for f in bad:
+    #               print("  -", f)
+    #           sys.exit(1)
+
+    #       print("No .py or .c files present in diffpy/pdfgetx/")
+    #       EOF
+
+    #   - name: Run tests
+    #     run: python -m pytest
+
+  pre-release:
+    if: ${{ contains(github.ref, 'rc') }}
+    uses: ./.github/workflows/release-github.yml
+    with:
+      release_title: Pre-release ${{ github.ref_name }}
+      release_body: "Changelog: https://github.com/Tieqiong/pyobjcryst/commits/${{ github.ref_name }}"
+      assets: dist/*.whl
+    secrets:
+      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+  # release-update-changelog:
+  #   if: ${{ !contains(github.ref, 'rc') }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout the repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         token: ${{ secrets.PAT_TOKEN }}
+
+  #     - name: Update CHANGELOG.rst with the latest news
+  #       run: |
+  #         wget https://raw.githubusercontent.com/scikit-package/release-scripts/v0/.github/workflows/update-changelog.py
+  #         python update-changelog.py "${{ github.ref_name }}"
+  #         rm update-changelog.py
+
+  #     - name: Commit the changes in CHANGELOG.rst
+  #       uses: stefanzweifel/git-auto-commit-action@v5
+  #       with:
+  #         commit_message: update changelog
+  #         branch: main
+
+  # release-delete-create-new-tag:
+  # # For a full release, we delete and create a new tag to reflect the latest changes in the CHANGELOG.rst.
+  # # Recall that during the full release, the `main` branch's CHANGELOG.rst has been updated, and we want the
+  # # tag to reflect the latest changes in the CHANGELOG.rst done by the update-changelog above.
+  # # For more discussions, please read https://github.com/scikit-package/release-scripts/pull/120
+  # # Always run this job for a full release but fail if the update-changelog job previously failed.
+  #   needs: [release-update-changelog]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout the repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         ref: main
+  #     - name: Delete the tag
+  #       run: |
+  #         git fetch --tags
+  #         git tag -d "${{ github.ref_name }}"
+  #         git push origin ":${{ github.ref_name }}"
+  #     - name: Create a new tag (Expect commit SHA to match with that of main branch)
+  #       run: |
+  #         git tag "${{ github.ref_name }}"
+  #         git push origin "${{ github.ref_name }}"
+
+  # release:
+  #   uses: ./.github/workflows/release-github.yml
+  #   with:
+  #     release_title: Release ${{ github.ref_name }}
+  #     release_body:
+  #     assets: dist/*.whl
+  #   secrets:
+  #     PAT_TOKEN: ${{ secrets.PAT_TOKEN }}

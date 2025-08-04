@@ -1,0 +1,67 @@
+name: (Pre)Release on GitHub
+
+on:
+  workflow_call:
+    inputs:
+      release_title:
+        description: 'Release title'
+        required: true
+        type: string
+      release_body:
+        description: 'Release description'
+        required: true
+        type: string
+      assets:
+        description: 'Space-separated list of files to upload'
+        required: true
+        type: string
+    secrets:
+      PAT_TOKEN:
+        description: 'GitHub Personal Access Token'
+        required: true
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    env:
+      TAG: ${{ github.ref_name }}
+      RELEASE_TITLE: ${{ github.event.inputs.release_title }}
+      RELEASE_BODY: ${{ github.event.inputs.release_body }}
+      ASSETS:    ${{ github.event.inputs.assets }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Create GitHub Release
+        id: create_release
+        run: |
+            echo "Creating release for tag '$TAG'..."
+            response=$(curl -s -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/releases \
+            -d @- <<EOF
+            {
+            "tag_name":   "${TAG}",
+            "name":       "${RELEASE_NAME}",
+            "body":       "${RELEASE_BODY}"
+            }
+            EOF
+            )
+            upload_url=$(echo "$response" | jq -r .upload_url | sed -e "s/{?name,label}//")
+            echo "upload_url=$upload_url" >> $GITHUB_OUTPUT
+
+      - name: Upload Release Assets
+        if: steps.create_release.outputs.upload_url
+        run: |
+            for file in $ASSETS; do
+            echo "Uploading asset: $file"
+            curl -s --data-binary @"$file" \
+                -H "Content-Type: application/octet-stream" \
+                -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+                "${{ steps.create_release.outputs.upload_url }}?name=$(basename "$file")"
+            done
