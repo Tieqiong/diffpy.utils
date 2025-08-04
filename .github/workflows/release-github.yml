@@ -5,54 +5,42 @@ on:
   workflow_call:
     inputs:
       release_title:
-        description: 'Release title'
-        required: true
         type: string
+        required: true
       release_body:
-        description: 'Release description'
-        required: true
         type: string
+        required: true
     secrets:
       PAT_TOKEN:
-        description: 'GitHub Personal Access Token'
         required: true
 
 jobs:
-  prepare-release:
+  release:
     runs-on: ubuntu-latest
-    outputs:
-      wheels_zip: ${{ steps.zip.outputs.wheels_zip }}
     steps:
-      - name: Download all artifacts
+      - name: Download all wheels artifacts
         uses: actions/download-artifact@v4
         with:
           path: dist/
-
-      - name: Zip wheels
-        id: zip
+      - name: Zip wheels into one archive
         run: |
           mkdir -p dist
           find dist -type f -name '*.whl' | zip -j dist/wheels.zip -@
-          echo "wheels_zip=dist/wheels.zip" >> $GITHUB_OUTPUT
 
-  create-release:
-    needs: prepare-release
-    runs-on: ubuntu-latest
-    steps:
       - name: Create GitHub Release
         id: create_release
         shell: bash
         run: |
           set -euo pipefail
-
           TAG="${{ github.ref_name }}"
           echo "Creating release for tag '$TAG'…"
 
           http_resp=$(curl --silent --output resp.json --write-out "%{http_code}" \
-            -X POST https://api.github.com/repos/${{ github.repository }}/releases \
-            -H "Accept: application/vnd.github+json" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+            --request POST \
+            --url "https://api.github.com/repos/${{ github.repository }}/releases" \
+            --header "Accept: application/vnd.github+json" \
+            --header "Content-Type: application/json" \
+            --header "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
             --data @- <<EOF
           {
             "tag_name":   "$TAG",
@@ -75,13 +63,12 @@ jobs:
           upload_url=${upload_url%%\{*}
           echo "upload_url=$upload_url" >> $GITHUB_OUTPUT
 
-      - name: Upload Release Assets
+      - name: Upload Release Asset
         if: steps.create_release.outputs.upload_url != ''
         run: |
-          for file in "${{ needs.prepare-release.outputs.wheels_zip }}"; do
-            echo "Uploading asset: $file"
-            curl --silent --data-binary @"$file" \
-              -H "Content-Type: application/octet-stream" \
-              -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
-              "${{ steps.create_release.outputs.upload_url }}?name=$(basename "$file")"
-          done
+          FILE=dist/wheels.zip
+          echo "Uploading asset: $FILE"
+          curl --silent --fail --data-binary @"$FILE" \
+            --header "Content-Type: application/zip" \
+            --header "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+            "${{ steps.create_release.outputs.upload_url }}?name=$(basename "$FILE")"
