@@ -21,16 +21,16 @@ on:
         required: true
 
 jobs:
-  create_release:
+  create-release:
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -l {0}
     env:
-      TAG: ${{ github.ref_name }}
-      RELEASE_TITLE: ${{ github.event.inputs.release_title }}
-      RELEASE_BODY: ${{ github.event.inputs.release_body }}
-      ASSETS:    ${{ github.event.inputs.assets }}
+      TAG:           ${{ github.ref_name }}
+      RELEASE_TITLE: ${{ inputs.release_title }}
+      RELEASE_BODY:  ${{ inputs.release_body }}
+      ASSETS:        ${{ inputs.assets }}
 
     steps:
       - name: Check out repository
@@ -39,29 +39,31 @@ jobs:
       - name: Create GitHub Release
         id: create_release
         run: |
-            echo "Creating release for tag '$TAG'..."
-            response=$(curl -s -X POST \
+          echo "Creating release for tag '$TAG'..."
+          response=$(curl -s -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
             https://api.github.com/repos/${{ github.repository }}/releases \
             -d @- <<EOF
-            {
-            "tag_name":   "${TAG}",
-            "name":       "${RELEASE_NAME}",
-            "body":       "${RELEASE_BODY}"
-            }
-            EOF
-            )
-            upload_url=$(echo "$response" | jq -r .upload_url | sed -e "s/{?name,label}//")
-            echo "upload_url=$upload_url" >> $GITHUB_OUTPUT
+          {
+            "tag_name": "${TAG}",
+            "name":     "${RELEASE_TITLE}",
+            "body":     "${RELEASE_BODY}"
+          }
+          EOF
+          )
+          # strip off the {?name,label} template
+          upload_url=$(echo "$response" | jq -r .upload_url | sed -e "s/{?name,label}//")
+          echo "upload_url=$upload_url" >> $GITHUB_OUTPUT
 
       - name: Upload Release Assets
-        if: steps.create_release.outputs.upload_url
+        if: steps.create_release.outputs.upload_url != ''
         run: |
-            for file in $ASSETS; do
-            echo "Uploading asset: $file"
+          echo "Uploading assets to ${{ steps.create_release.outputs.upload_url }}…"
+          for file in $ASSETS; do
+            echo " - $file"
             curl -s --data-binary @"$file" \
-                -H "Content-Type: application/octet-stream" \
-                -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
-                "${{ steps.create_release.outputs.upload_url }}?name=$(basename "$file")"
-            done
+              -H "Content-Type: application/octet-stream" \
+              -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
+              "${{ steps.create_release.outputs.upload_url }}?name=$(basename "$file")"
+          done

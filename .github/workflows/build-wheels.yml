@@ -193,15 +193,31 @@ jobs:
     #   - name: Run tests
     #     run: python -m pytest
 
+  prepare-release:
+    needs: [test-wheels]
+    runs-on: ubuntu-latest
+    outputs:
+      wheels_zip: ${{ steps.zip.outputs.wheels_zip }}
+    steps:
+      - name: Download all wheels
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
+      - id: zip
+        run: |
+          find dist -type f -name '*.whl' | zip -j dist/wheels.zip -@
+          echo "wheels_zip=dist/wheels.zip" >> $GITHUB_OUTPUT
+
   pre-release:
-    if: ${{ contains(github.ref, 'rc') }}
+    if: contains(github.ref, 'rc')
+    needs: [prepare-release]
     uses: ./.github/workflows/release-github.yml
     with:
-      release_title: Pre-release ${{ github.ref_name }}
-      release_body: "Changelog: https://github.com/Tieqiong/pyobjcryst/commits/${{ github.ref_name }}"
-      assets: dist/*.whl
+      release_title: "Pre-release ${{ github.ref_name }}"
+      release_body:  "Changelog: https://github.com/Tieqiong/pyobjcryst/commits/${{ github.ref_name }}"
+      assets:         ${{ needs.prepare-release.outputs.wheels_zip }}
     secrets:
-      PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+      PAT_TOKEN:      ${{ secrets.PAT_TOKEN }}
 
   # release-update-changelog:
   #   if: ${{ !contains(github.ref, 'rc') }}
