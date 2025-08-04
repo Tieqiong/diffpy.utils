@@ -1,4 +1,5 @@
-name: (Pre)Release on GitHub
+# .github/workflows/release-github.yml
+name: Release on GitHub
 
 on:
   workflow_call:
@@ -11,58 +12,75 @@ on:
         description: 'Release description'
         required: true
         type: string
-      assets:
-        description: 'Space-separated list of files to upload'
-        required: true
-        type: string
     secrets:
       PAT_TOKEN:
         description: 'GitHub Personal Access Token'
         required: true
 
 jobs:
-  create-release:
+  prepare-release:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
-    env:
-      TAG:           ${{ github.ref_name }}
-      RELEASE_TITLE: ${{ inputs.release_title }}
-      RELEASE_BODY:  ${{ inputs.release_body }}
-      ASSETS:        ${{ inputs.assets }}
-
+    outputs:
+      wheels_zip: ${{ steps.zip.outputs.wheels_zip }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist/
 
+      - name: Zip wheels
+        id: zip
+        run: |
+          mkdir -p dist
+          find dist -type f -name '*.whl' | zip -j dist/wheels.zip -@
+          echo "wheels_zip=dist/wheels.zip" >> $GITHUB_OUTPUT
+
+  create-release:
+    needs: prepare-release
+    runs-on: ubuntu-latest
+    steps:
       - name: Create GitHub Release
         id: create_release
+        shell: bash
         run: |
-          echo "Creating release for tag '$TAG'..."
-          response=$(curl -s -X POST \
+          set -euo pipefail
+
+          TAG="${{ github.ref_name }}"
+          echo "Creating release for tag '$TAG'…"
+
+          http_resp=$(curl --silent --output resp.json --write-out "%{http_code}" \
+            -X POST https://api.github.com/repos/${{ github.repository }}/releases \
             -H "Accept: application/vnd.github+json" \
+            -H "Content-Type: application/json" \
             -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/releases \
-            -d @- <<EOF
+            --data @- <<EOF
           {
-            "tag_name": "${TAG}",
-            "name":     "${RELEASE_TITLE}",
-            "body":     "${RELEASE_BODY}"
+            "tag_name":   "$TAG",
+            "name":       "${{ inputs.release_title }}",
+            "body":       "${{ inputs.release_body }}",
+            "prerelease": true
           }
           EOF
           )
-          # strip off the {?name,label} template
-          upload_url=$(echo "$response" | jq -r .upload_url | sed -e "s/{?name,label}//")
+
+          echo "HTTP status: $http_resp"
+          cat resp.json
+
+          if [[ "$http_resp" -ne 201 ]]; then
+            echo "::error::Failed to create release (status $http_resp)"
+            exit 1
+          fi
+
+          upload_url=$(jq -r .upload_url resp.json)
+          upload_url=${upload_url%%\{*}
           echo "upload_url=$upload_url" >> $GITHUB_OUTPUT
 
       - name: Upload Release Assets
         if: steps.create_release.outputs.upload_url != ''
         run: |
-          echo "Uploading assets to ${{ steps.create_release.outputs.upload_url }}…"
-          for file in $ASSETS; do
-            echo " - $file"
-            curl -s --data-binary @"$file" \
+          for file in "${{ needs.prepare-release.outputs.wheels_zip }}"; do
+            echo "Uploading asset: $file"
+            curl --silent --data-binary @"$file" \
               -H "Content-Type: application/octet-stream" \
               -H "Authorization: Bearer ${{ secrets.PAT_TOKEN }}" \
               "${{ steps.create_release.outputs.upload_url }}?name=$(basename "$file")"
