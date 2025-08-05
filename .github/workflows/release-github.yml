@@ -22,7 +22,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update CHANGELOG
         run: |
