@@ -23,6 +23,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          ref: main
 
       - name: Update CHANGELOG
         run: |
@@ -34,8 +36,6 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch origin main
-          git checkout main
           git add CHANGELOG.rst
           if ! git diff --cached --quiet; then
             git commit -m "update changelog for $TAG"
@@ -63,9 +63,6 @@ jobs:
         with:
           name: changelog
           path: CHANGELOG.txt
-      
-      - name: debug
-        run: exit 1
 
   release:
     needs: [prepare-release]

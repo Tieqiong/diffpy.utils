@@ -45,7 +45,7 @@ jobs:
           git fetch origin main
           TAG_COMMIT=$(git rev-parse ${{ github.ref_name }})
           if git merge-base --is-ancestor "$TAG_COMMIT" origin/main; then
-            echo "::notice::Tag ${{ github.ref_name }} ($TAG_COMMIT) is contained in main"
+            echo "Tag ${{ github.ref_name }} ($TAG_COMMIT) is contained in main"
           else
             echo "::error::Tag ${{ github.ref_name }} ($TAG_COMMIT) is not found in main. Please release from the main branch."
             exit 1
