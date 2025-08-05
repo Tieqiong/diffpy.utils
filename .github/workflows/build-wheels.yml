@@ -102,7 +102,7 @@ jobs:
     #       retention-days: 1
 
   build-wheels:
-    needs: [build-sdist]
+    needs: [build-sdist, get-python-versions]
     defaults:
       run:
         shell: bash -l {0}
@@ -151,7 +151,7 @@ jobs:
           path: dist/*.whl
 
   test-wheels:
-    needs: [build-wheels]
+    needs: [build-wheels, get-python-versions]
     defaults:
       run:
         shell: bash -l {0}
