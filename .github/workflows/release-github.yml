@@ -78,7 +78,7 @@ jobs:
       - name: Check prepare release
         run: |
           if [[ ${{ needs.prepare-release.result }} != 'success' && "$TAG" != *rc* ]]; then
-            echo "Skipping release job because prepare-release failed"
+            echo "::error::Skipping release job because prepare-release failed"
             exit 78
           fi
           echo "Continuing with release job"
