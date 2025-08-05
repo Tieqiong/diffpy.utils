@@ -54,11 +54,11 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: changelog
-          path: changelog.txt
+          path: CHANGELOG.txt
 
   release:
     needs: [prepare-release]
-    if: always() && ${{ needs.prepare-release.result == 'success' }}
+    if: ${{ needs.prepare-release.result == 'success' }} || ${{ contains(github.ref, 'rc') }} && always()
     runs-on: ubuntu-latest
     env:
       REPO_FULL: ${{ github.repository }}
@@ -90,7 +90,7 @@ jobs:
           else
             PRERELEASE=false
             TITLE="Release $TAG"
-            BODY_RAW=$(<changelog.txt)
+            BODY_RAW=$(<CHANGELOG.txt)
           fi
           BODY_JSON=$(jq -Rs . <<< "$BODY_RAW")
           echo "prerelease=$PRERELEASE" >> $GITHUB_OUTPUT
