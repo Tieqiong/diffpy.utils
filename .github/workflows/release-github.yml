@@ -66,12 +66,20 @@ jobs:
 
   release:
     needs: [prepare-release]
-    if: ${{ needs.prepare-release.result == 'success' || contains(github.ref, 'rc') }} && always()
+    if: always()
     runs-on: ubuntu-latest
     env:
       REPO_FULL: ${{ github.repository }}
 
     steps:
+      - name: Check prepare release
+        run: |
+          if [[ ${{ needs.prepare-release.result }} != 'success' && "$TAG" != *rc* ]]; then
+            echo "Skipping release job because prepare-release failed"
+            exit 78
+          fi
+          echo "Continuing with release job"
+
       - name: Download built wheels
         uses: actions/download-artifact@v4
         with:
