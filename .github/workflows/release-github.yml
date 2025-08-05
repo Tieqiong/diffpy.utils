@@ -58,7 +58,7 @@ jobs:
 
   release:
     needs: [prepare-release]
-    if: ${{ needs.prepare-release.result == 'success' }} || ${{ contains(github.ref, 'rc') }} && always()
+    if: always()
     runs-on: ubuntu-latest
     env:
       REPO_FULL: ${{ github.repository }}
