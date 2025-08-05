@@ -47,7 +47,7 @@ jobs:
           if git merge-base --is-ancestor "$TAG_COMMIT" origin/main; then
             echo "::notice::Tag ${{ github.ref_name }} ($TAG_COMMIT) is contained in main"
           else
-            echo "::error::Tag ${{ github.ref_name }} ($TAG_COMMIT) is not found in main"
+            echo "::error::Tag ${{ github.ref_name }} ($TAG_COMMIT) is not found in main. Please release from the main branch."
             exit 1
           fi
 
@@ -102,7 +102,7 @@ jobs:
     #       retention-days: 1
 
   build-wheels:
-    needs: [get-python-versions, build-sdist]
+    needs: [build-sdist]
     defaults:
       run:
         shell: bash -l {0}
@@ -151,7 +151,7 @@ jobs:
           path: dist/*.whl
 
   test-wheels:
-    needs: [get-python-versions, build-wheels]
+    needs: [build-wheels]
     defaults:
       run:
         shell: bash -l {0}
