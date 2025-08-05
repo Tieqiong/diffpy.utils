@@ -51,6 +51,12 @@ jobs:
           git push origin ":$TAG" 2>/dev/null || true
           git tag "$TAG"
           git push origin "$TAG"
+      
+      - name: Get CHANGELOG.txt
+        run: |
+          wget https://raw.githubusercontent.com/scikit-package/release-scripts/v0/.github/workflows/get-latest-changelog.py
+          python get-latest-changelog.py "$TAG"
+          rm get-latest-changelog.py
 
       - name: Upload changelog.txt
         uses: actions/upload-artifact@v4
