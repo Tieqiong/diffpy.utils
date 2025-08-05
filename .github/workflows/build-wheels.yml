@@ -193,65 +193,8 @@ jobs:
     #   - name: Run tests
     #     run: python -m pytest
 
-  pre-release:
-    if: contains(github.ref, 'rc')
+  release:
     needs: [test-wheels]
     uses: ./.github/workflows/release-github.yml
-    with:
-      release_title: "Pre-release ${{ github.ref_name }}"
-      release_body:  "Changelog: https://github.com/Tieqiong/pyobjcryst/commits/${{ github.ref_name }}"
     secrets:
       PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
-
-  # release-update-changelog:
-  #   if: ${{ !contains(github.ref, 'rc') }}
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout the repository
-  #       uses: actions/checkout@v4
-  #       with:
-  #         token: ${{ secrets.PAT_TOKEN }}
-
-  #     - name: Update CHANGELOG.rst with the latest news
-  #       run: |
-  #         wget https://raw.githubusercontent.com/scikit-package/release-scripts/v0/.github/workflows/update-changelog.py
-  #         python update-changelog.py "${{ github.ref_name }}"
-  #         rm update-changelog.py
-
-  #     - name: Commit the changes in CHANGELOG.rst
-  #       uses: stefanzweifel/git-auto-commit-action@v5
-  #       with:
-  #         commit_message: update changelog
-  #         branch: main
-
-  # release-delete-create-new-tag:
-  # # For a full release, we delete and create a new tag to reflect the latest changes in the CHANGELOG.rst.
-  # # Recall that during the full release, the `main` branch's CHANGELOG.rst has been updated, and we want the
-  # # tag to reflect the latest changes in the CHANGELOG.rst done by the update-changelog above.
-  # # For more discussions, please read https://github.com/scikit-package/release-scripts/pull/120
-  # # Always run this job for a full release but fail if the update-changelog job previously failed.
-  #   needs: [release-update-changelog]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout the repository
-  #       uses: actions/checkout@v4
-  #       with:
-  #         ref: main
-  #     - name: Delete the tag
-  #       run: |
-  #         git fetch --tags
-  #         git tag -d "${{ github.ref_name }}"
-  #         git push origin ":${{ github.ref_name }}"
-  #     - name: Create a new tag (Expect commit SHA to match with that of main branch)
-  #       run: |
-  #         git tag "${{ github.ref_name }}"
-  #         git push origin "${{ github.ref_name }}"
-
-  # release:
-  #   uses: ./.github/workflows/release-github.yml
-  #   with:
-  #     release_title: Release ${{ github.ref_name }}
-  #     release_body:
-  #     assets: dist/*.whl
-  #   secrets:
-  #     PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
