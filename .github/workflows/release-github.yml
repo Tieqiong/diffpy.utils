@@ -63,6 +63,9 @@ jobs:
         with:
           name: changelog
           path: CHANGELOG.txt
+      
+      - name: debug
+        run: exit 1
 
   release:
     needs: [prepare-release]
