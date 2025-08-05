@@ -84,10 +84,10 @@ jobs:
           name: changelog
           path: .
 
-      - name: Zip wheels into dist/$TAG-wheels.zip
+      - name: Zip wheels into dist/pdfgetx-$TAG-wheels.zip
         run: |
           mkdir -p dist
-          find dist -type f -name '*.whl' | zip -j dist/"$TAG"-wheels.zip -@
+          find dist -type f -name '*.whl' | zip -j dist/pdfgetx-"$TAG"-wheels.zip -@
 
       - name: Prepare release metadata
         id: meta
@@ -134,10 +134,10 @@ jobs:
           UPLOAD_URL=${UPLOAD_URL%%\{*}
           echo "upload_url=$UPLOAD_URL" >> $GITHUB_OUTPUT
 
-      - name: Upload $TAG-wheels.zip
+      - name: Upload pdfgetx-$TAG-wheels.zip
         if: steps.create_release.outputs.upload_url != ''
         run: |
-          FILE=dist/$TAG-wheels.zip
+          FILE=dist/pdfgetx-$TAG-wheels.zip
           echo "Uploading asset: $FILE"
           curl --silent --fail --data-binary @"$FILE" \
             -H "Content-Type: application/zip" \
