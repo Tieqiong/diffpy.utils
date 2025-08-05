@@ -4,6 +4,14 @@ Release notes
 
 .. current developments
 
+0.1.6
+=====
+
+**Added:**
+
+* test
+
+
 3.6.1
 =====
 
