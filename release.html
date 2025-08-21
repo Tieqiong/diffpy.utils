@@ -1,0 +1,340 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Release notes &mdash; diffpy.utils 3.6.2rc0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=dea3ae27"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=cca77546"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Utilities" href="utilities/utilities.html" />
+    <link rel="prev" title="License" href="license.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            diffpy.utils
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="license.html">License</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Release notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utilities/utilities.html">Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/diffpy.utils.html">Package API</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">diffpy.utils</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Release notes</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/diffpy/diffpy.utils/blob/main/docs/source/release.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="release-notes">
+<span id="index-0"></span><h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading"></a></h1>
+<section id="id1">
+<h2>3.6.1<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p><strong>Added:</strong></p>
+<ul class="simple">
+<li><p>update isort, flake8 and black to set line limit to 79</p></li>
+</ul>
+<p><strong>Fixed:</strong></p>
+<ul class="simple">
+<li><p>Support <code class="docutils literal notranslate"><span class="pre">scikit-package</span></code> Level 5 standard (<a class="reference external" href="https://scikit-package.github.io/scikit-package/">https://scikit-package.github.io/scikit-package/</a>).</p></li>
+<li><p>Update github CI to scikit-package standard</p></li>
+<li><p>Let <code class="docutils literal notranslate"><span class="pre">DiffractionObject.get_array_index</span></code> to use the <code class="docutils literal notranslate"><span class="pre">xtype</span></code> from its inputs.</p></li>
+</ul>
+<p><strong>Removed:</strong></p>
+<ul class="simple">
+<li><p>Extra line break in each news after 3.6.0 in <cite>CHANGELOG.rst</cite> so that this rst can be rendered correctly when deployed</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>3.6.0<a class="headerlink" href="#id2" title="Link to this heading"></a></h2>
+<p><strong>Added:</strong></p>
+<ul class="simple">
+<li><p>unit tests for initializing DiffractionObject with empty array in xarray and yarray</p></li>
+<li><p>function to return the index of the closest value to the specified value in an array.</p></li>
+<li><p>functions to convert between d and q</p></li>
+<li><p>catch division by zero warning messages in tests</p></li>
+<li><p>functionality to raise useful warning and error messages during angular conversion between two theta and q</p></li>
+<li><p>Improved API documentation in <cite>DiffractionObject</cite> methods and properties using the NumPy docstring format and PEP 256</p></li>
+<li><p>validate xtype belongs to XQUANTITIES during DiffractionObject init</p></li>
+<li><p>Group’s Pytest practices for using &#64;pytest.mark.parametrize in test_diffraction_objects.py</p></li>
+<li><p>unit tests for __add__ operation for DiffractionObject</p></li>
+<li><p>Better wording on the capture user info functionality</p></li>
+<li><p>Spelling check via Codespell in pre-commit</p></li>
+<li><p>prettier pre-commit hook for automatic linting of .yml, .json, and .md files</p></li>
+<li><p>Function that can be used to compute muD (absorption coefficient) from a file containing an absorption profile from a line-scan through the sample</p></li>
+<li><p>sbillinge username as the authorized admin for GitHub release workflow in <cite>build-wheel-release-upload.yml</cite></p></li>
+<li><p>function to compute x-ray attenuation coefficient (mu) using XrayDB</p></li>
+<li><p>class docstring for <cite>DiffractionObject</cite></p></li>
+<li><p>docforamtter in pre-commit for automatic formatting of docstrings to PEP 257</p></li>
+<li><p>Function nsinterp for automatic interpolation onto the Nyquist-Shannon grid.</p></li>
+<li><p>functionality to return the 2D array based on the specified xtype</p></li>
+<li><p>functionality in dump to allow writing data on dspace</p></li>
+<li><p>addition, multiplication, subtraction, and division operators between two DiffractionObject instances or a scalar value with another DiffractionObject for modifying yarray (intensity) values.</p></li>
+<li><p>functionality to rescale diffraction objects, placing one on top of another at a specified point</p></li>
+<li><p>new feature in <cite>scale_to()</cite>: default scaling is based on the max q-value in each diffraction object.</p></li>
+<li><p>functions to convert between d and tth</p></li>
+<li><p>unit test for expected warning when no wavelength is provided for DiffractionObject init</p></li>
+<li><p>copy() method for DiffractionObject instance</p></li>
+<li><p>docstrings for <cite>on_q</cite>, <cite>on_tth</cite>, <cite>on_d</cite>, and <cite>dump</cite> in <cite>diffraction_objects.py</cite>.</p></li>
+<li><p>prevent direct modification of <cite>all_arrays</cite> using <cite>&#64;property</cite></p></li>
+<li><p>Information on how to update the default user information</p></li>
+<li><p>Example docs for basic DiffractionObject usage</p></li>
+<li><p>deploy github pages documentation on pre-release</p></li>
+<li><p>Gettable <cite>id</cite> property to <cite>DiffractionObject</cite></p></li>
+</ul>
+<p><strong>Changed:</strong></p>
+<ul class="simple">
+<li><p>Refactor get_user_info to separate the tasks of getting the info from config files and creating config files when they are missing.</p></li>
+<li><p>test comment format with compact style without extra line for each comment</p></li>
+<li><p>Rename <cite>input_scattering_quantity</cite> to <cite>input_data</cite> in <cite>DiffractionObject</cite> init</p></li>
+<li><p>refactor <cite>q_to_tth()</cite> and <cite>tth_to_q()</cite> into <cite>diffpy.utils.transforms</cite> to make them available outside DiffractionObject</p></li>
+<li><p>Moved resampler out of parsers, new path is diffpy.utils.resampler</p></li>
+<li><p>Rename the <cite>isfloat</cite> function to <cite>is_number</cite>, and move it to the <cite>diffpy/utils/utilsvalidators.py</cite> directory</p></li>
+<li><p>arrays and attributes now can be inserted when a DiffractionObject is instantiated</p></li>
+<li><p>data are now stored as a (len(x),4) numpy array with intensity in column 0, the q, then tth, then d</p></li>
+<li><p><cite>DiffractionObject.on_q</cite>, <cite>…on_tth</cite> and <cite>…on_d</cite> are now methods and called as <cite>DiffractionObject.on_q()</cite> etc.`</p></li>
+<li><p>tests directory tree to match src</p></li>
+<li><p>DiffractionObject’s “id” property renamed to “uuid”</p></li>
+<li><p><cite>DiffractionObject</cite> requires 3 input parameters of <cite>xarray</cite>, <cite>yarray</cite>, <cite>xtype</cite>, to be instantiated.  It can be instantiated with empty arrays.</p></li>
+<li><p>Paths in our documentation reflect changes made in code.</p></li>
+<li><p>Enumerated list for the different ways to set user information</p></li>
+</ul>
+<p><strong>Deprecated:</strong></p>
+<ul class="simple">
+<li><p><cite>resample</cite> function in resampler. Replaced with <cite>wsinterp</cite> with better functionality.</p></li>
+<li><p>Diffraction_object class, renamed to DiffractionObject</p></li>
+</ul>
+<p><strong>Fixed:</strong></p>
+<ul class="simple">
+<li><p>additional information to users to relieve frustration in finding how to update global config</p></li>
+<li><p>Unittest to Pytest migration for test_loaddata.py</p></li>
+<li><p>file paths of the test files according to new tests directory tree</p></li>
+<li><p>Typo for get_package_info example</p></li>
+<li><p>return type of <cite>get_array_index</cite> method in <cite>DiffractionObject</cite> to return integer instead of list</p></li>
+</ul>
+<p><strong>Removed:</strong></p>
+<ul class="simple">
+<li><p>scattering_objects layer in importing diffraction_objects</p></li>
+<li><p><cite>user_config.py</cite>. Replaced by <cite>_load_config</cite> and <cite>check_and_build_global_config</cite> in <cite>tools.py</cite>.</p></li>
+<li><p>Relative imports in parser’s __init__.py</p></li>
+<li><p><cite>set_angles_from_list</cite>, <cite>set_angles_from</cite>, <cite>set_qs_from_range</cite> methods in <cite>DiffractionObject</cite></p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>3.5.0<a class="headerlink" href="#id3" title="Link to this heading"></a></h2>
+<p><strong>Added:</strong></p>
+<ul class="simple">
+<li><p>Support for Python 3.13</p></li>
+</ul>
+<p><strong>Removed:</strong></p>
+<ul class="simple">
+<li><p>Support for Python 3.10</p></li>
+</ul>
+</section>
+<section id="id4">
+<h2>3.4.3<a class="headerlink" href="#id4" title="Link to this heading"></a></h2>
+<p><strong>Added:</strong></p>
+<ul class="simple">
+<li><p>Diffraction_objects mentioned in the README</p></li>
+</ul>
+<p><strong>Fixed:</strong></p>
+<ul class="simple">
+<li><p>Recut to group’s package standard, fix installation, add GitHub release workflow</p></li>
+<li><p>setuptools-git-versioning from &lt;2.0 to &gt;= 2.0 in pyproject.toml</p></li>
+<li><p>Two Pytest warnings due to numpy and pytest mocker in test_dump function</p></li>
+<li><p>Add pip dependencies under pip.txt and conda dependencies under conda.txt</p></li>
+</ul>
+</section>
+<section id="id5">
+<h2>3.4.2<a class="headerlink" href="#id5" title="Link to this heading"></a></h2>
+<p><strong>Added:</strong></p>
+<ul class="simple">
+<li><p>link docs in the README</p></li>
+</ul>
+<p><strong>Changed:</strong></p>
+<ul class="simple">
+<li><p>removed need to install requirements separately when pip installing.</p></li>
+</ul>
+<p><strong>Fixed:</strong></p>
+<ul class="simple">
+<li><p>Updated package structure to new group standard</p></li>
+</ul>
+</section>
+<section id="id6">
+<h2>3.4.0<a class="headerlink" href="#id6" title="Link to this heading"></a></h2>
+<p><strong>Added:</strong></p>
+<ul class="simple">
+<li><p>utility for handling the capture of username and email for diffpy applications</p></li>
+<li><p>__eq__ method into Diffraction_object so we can equation two instances of a diffraction object</p></li>
+</ul>
+<p><strong>Changed:</strong></p>
+<ul class="simple">
+<li><p>diffraction_object.dump now adds creation time and diffpy.utils version number to the output file</p></li>
+</ul>
+<p><strong>Fixed:</strong></p>
+<ul class="simple">
+<li><p>fixed inadvertent overwrite of attributes on self.insert_scattering_quantity()</p></li>
+</ul>
+</section>
+<section id="v3-3-0">
+<h2>v3.3.0<a class="headerlink" href="#v3-3-0" title="Link to this heading"></a></h2>
+<p><strong>Added:</strong></p>
+<ul class="simple">
+<li><p>Diffraction_objects for easier manipulations of diffraction objects</p></li>
+<li><p>dump method to Diffraction_object</p></li>
+</ul>
+</section>
+<section id="v3-2-7">
+<h2>v3.2.7<a class="headerlink" href="#v3-2-7" title="Link to this heading"></a></h2>
+</section>
+<section id="v3-2-6">
+<h2>v3.2.6<a class="headerlink" href="#v3-2-6" title="Link to this heading"></a></h2>
+</section>
+<section id="v3-2-5">
+<h2>v3.2.5<a class="headerlink" href="#v3-2-5" title="Link to this heading"></a></h2>
+<p><strong>Fixed:</strong></p>
+<ul class="simple">
+<li><p>Added a wx import to fix module not found error.</p></li>
+</ul>
+</section>
+<section id="v3-2-4">
+<h2>v3.2.4<a class="headerlink" href="#v3-2-4" title="Link to this heading"></a></h2>
+<p><strong>Added:</strong></p>
+<ul class="simple">
+<li><p>New documentation build.</p></li>
+<li><p>Added examples for file parsers and resampling.</p></li>
+<li><p>Tested for Jupyter Notebook compatibility.</p></li>
+</ul>
+<p><strong>Changed:</strong></p>
+<ul class="simple">
+<li><p>Theme changed from <cite>sphinx_py3doc_enhanced_theme</cite> to <cite>sphinx_rtd_theme</cite>.</p></li>
+<li><p>User now warned when data_table data overwrites hdata (header) data.</p></li>
+</ul>
+</section>
+<section id="v3-2-3">
+<h2>v3.2.3<a class="headerlink" href="#v3-2-3" title="Link to this heading"></a></h2>
+<p><strong>Added:</strong></p>
+<ul class="simple">
+<li><p>Compatibility with Python 3.12.0rc3, 3.11.</p></li>
+<li><p>CI Coverage.</p></li>
+<li><p>New tests for loadData function.</p></li>
+<li><p>loadData function now toggleable. Can return either (a) data read from data blocks or (b) header information stored
+above the data block.</p></li>
+</ul>
+<p><strong>Removed:</strong></p>
+<ul class="simple">
+<li><p>Remove use of pkg_resources (deprecated).</p></li>
+<li><p>No longer use Travis.</p></li>
+</ul>
+</section>
+<section id="v3-1-0">
+<h2>v3.1.0<a class="headerlink" href="#v3-1-0" title="Link to this heading"></a></h2>
+<p><strong>Added:</strong></p>
+<ul class="simple">
+<li><p>Compatibility with Python 3.10, 3.9, 3.8.</p></li>
+</ul>
+<p><strong>Removed:</strong></p>
+<ul class="simple">
+<li><p>Remove the support for Python 3.5, 3.6.</p></li>
+</ul>
+</section>
+<section id="v3-0-0">
+<h2>v3.0.0<a class="headerlink" href="#v3-0-0" title="Link to this heading"></a></h2>
+<p><strong>Added:</strong></p>
+<ul class="simple">
+<li><p>Compatibility with Python 3.7, 3.6, 3.5 in addition to 2.7.</p></li>
+</ul>
+<p><strong>Changed:</strong></p>
+<ul class="simple">
+<li><p>Switch to platform-independent “noarch” Anaconda package.</p></li>
+</ul>
+<p><strong>Deprecated:</strong></p>
+<ul class="simple">
+<li><p>Variable <cite>__gitsha__</cite> in the <cite>version</cite> module which was renamed to <cite>__git_commit__</cite>.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="license.html" class="btn btn-neutral float-left" title="License" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="utilities/utilities.html" class="btn btn-neutral float-right" title="Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, The Trustees of Columbia University in the City of New York.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
